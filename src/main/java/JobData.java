@@ -9,7 +9,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-
+import java.util.HashSet;
+import java.util.Map;
 /**
  * Created by LaunchCode
  */
@@ -75,7 +76,7 @@ public class JobData {
 
             String aValue = row.get(column);
 
-            if (aValue.contains(value)) {
+            if (aValue != null && aValue.toLowerCase().contains(value.toLowerCase())) {
                 jobs.add(row);
             }
         }
@@ -93,9 +94,25 @@ public class JobData {
 
         // load data, if not already loaded
         loadData();
+        ArrayList<HashMap<String, String>> filteredJobs = new ArrayList<>();
+        HashSet<Integer> addedJobHashes = new HashSet<>(); // To track added jobs
 
-        // TODO - implement this method
-        return null;
+        for (HashMap<String, String> job : allJobs) {
+            for (Map.Entry<String, String> entry : job.entrySet()) {
+                if (entry.getValue().toLowerCase().contains(value.toLowerCase())) {
+                    // Create a hash of the job based on its content to check for uniqueness
+                    int jobHash = job.hashCode();
+                    if (!addedJobHashes.contains(jobHash)) {
+                        filteredJobs.add(job);
+                        addedJobHashes.add(jobHash); // Mark this job as added
+                    }
+                    break; // Once added, no need to check other fields of the same job
+                }
+            }
+        }
+
+        return filteredJobs;
+
     }
 
     /**
